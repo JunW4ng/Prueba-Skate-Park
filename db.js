@@ -1,7 +1,8 @@
 const { Pool } = require("pg");
 
 const pool = new Pool({
-  connectionString: "postgresql://postgres:Junjie1995@localhost:5432/skatepark",
+  connectionString:
+    "postgresql://postgres:Junjie1995.@localhost:5432/skatepark",
 });
 
 const consulta = (text, values) => ({ text, values });
@@ -13,7 +14,7 @@ const getParticipantes = async () => {
     const result = await pool.query(sqlQuery);
     return result.rows;
   } catch (error) {
-    console.log(err.code);
+    console.log(error.code);
     return error;
   }
 };
@@ -32,4 +33,16 @@ const postParticipantes = async (data) => {
   }
 };
 
-module.exports = { getParticipantes, postParticipantes };
+//? Busca participante
+const findParticipante = async (email) => {
+  const sqlQuery = "SELECT * FROM skaters WHERE email = $1";
+  const values = [email];
+  try {
+    const result = await pool.query(consulta(sqlQuery, values));
+    return result.rows;
+  } catch (error) {
+    console.log(error.code);
+    return error;
+  }
+};
+module.exports = { getParticipantes, postParticipantes, findParticipante };
