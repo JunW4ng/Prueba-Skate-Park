@@ -15,4 +15,4 @@ app.use(express.static("public"));
 app.use(api);
 app.use(front);
 
-app.listen(port, () => console.log(`Escuchando puerto ${port}`));
+app.listen(port, () => console.log(`*** Escuchando puerto ${port}`));

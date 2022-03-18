@@ -45,4 +45,24 @@ const findParticipante = async (email) => {
     return error;
   }
 };
-module.exports = { getParticipantes, postParticipantes, findParticipante };
+
+//? Modifica participante
+const putParticipante = async (data) => {
+  const sqlQuery =
+    "UPDATE skaters SET nombre = $1, password = $2, anos_experiencia = $3, especialidad = $4 WHERE id = $5 RETURNING*";
+  const values = data;
+  try {
+    const result = await pool.query(consulta(sqlQuery, values));
+    return result.rows;
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+module.exports = {
+  getParticipantes,
+  postParticipantes,
+  findParticipante,
+  putParticipante,
+};

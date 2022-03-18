@@ -7,6 +7,7 @@ const {
   getParticipantes,
   postParticipantes,
   findParticipante,
+  putParticipante,
 } = require("../db");
 
 const { JWT_SECRET, JWT_TTL } = process.env;
@@ -55,12 +56,12 @@ router.post("/signIn", async (req, res) => {
   try {
     const { inputEmail, inputPassword } = req.body;
     const result = await findParticipante(inputEmail);
-    const { email, nombre, password, anos_experiencia, especialidad } =
+    const { id, email, nombre, password, anos_experiencia, especialidad } =
       result[0];
 
     if (inputEmail === email && inputPassword === password) {
       const token = jwt.sign(
-        { email, nombre, password, anos_experiencia, especialidad },
+        { id, email, nombre, password, anos_experiencia, especialidad },
         JWT_SECRET,
         {
           expiresIn: JWT_TTL,
@@ -87,15 +88,38 @@ router.use("/verified", (req, res, next) => {
 
 //? Post verificado levanta pagina de datos
 router.get("/verified", (req, res) => {
-  const { email, nombre, password, anos_experiencia, especialidad } =
-    req.cookies.decodedData;
-  res.render("datos", {
-    email: email,
-    nombre: nombre,
-    password: password,
-    experiencia: anos_experiencia,
-    especialidad: especialidad,
-  });
+  try {
+    const { email, nombre, password, anos_experiencia, especialidad } =
+      req.cookies.decodedData;
+    res.render("datos", {
+      email: email,
+      nombre: nombre,
+      password: password,
+      experiencia: anos_experiencia,
+      especialidad: especialidad,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+//? Actualiza datos
+router.get("/updateUser", async (req, res) => {
+  try {
+    const { nombre, password, experiencia, especialidad } = req.query;
+    const { id } = req.cookies.decodedData;
+    const data = { nombre, password, experiencia, especialidad, id };
+    console.log(data);
+    await putParticipante(Object.values(data));
+    res.redirect("/");
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+//? Elimina cuenta
+router.get("/deleteUser", async (req, res) => {
+  const { id } = req.cookies.decodedData;
 });
 
 router.get("/admin", async (req, res) => {
