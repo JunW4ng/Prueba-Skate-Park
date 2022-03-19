@@ -2,12 +2,14 @@ require("dotenv").config();
 const { Router } = require("express");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+const fileUpload = require("express-fileupload");
 const jwt = require("jsonwebtoken");
 const {
   getParticipantes,
   postParticipantes,
   findParticipante,
   putParticipante,
+  deleteParticipante,
 } = require("../db");
 
 const { JWT_SECRET, JWT_TTL } = process.env;
@@ -17,6 +19,7 @@ const router = Router();
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());
 router.use(cookieParser());
+router.use(fileUpload()); //! configurar mb max
 
 //! Hacer logica de estado (aprobado o en revision)
 //? Muestra participantes
@@ -50,6 +53,23 @@ router.post("/register", async (req, res) => {
     console.log(error);
   }
 });
+
+//? Subida de foto
+/* router.post("register", (req, res) => {
+  let sampleFile;
+  let uploadPath;
+
+  if (!req.files || Object.keys(req.files).length === 0) {
+    return res.status(400).send("No files were uploaded.");
+  }
+
+  sampleFile = req.files.foto;
+  uploadPath = __dirname + "../public/images" + sampleFile.name;
+
+  sampleFile.mv(uploadPath, (err) => {
+    if (err) res.status(500).send(err);
+  });
+}); */
 
 //? Login participante
 router.post("/signIn", async (req, res) => {
@@ -104,12 +124,11 @@ router.get("/verified", (req, res) => {
 });
 
 //? Actualiza datos
-router.get("/updateUser", async (req, res) => {
+router.post("/updateUser", async (req, res) => {
   try {
-    const { nombre, password, experiencia, especialidad } = req.query;
+    const { nombre, password, experiencia, especialidad } = req.body;
     const { id } = req.cookies.decodedData;
     const data = { nombre, password, experiencia, especialidad, id };
-    console.log(data);
     await putParticipante(Object.values(data));
     res.redirect("/");
   } catch (error) {
@@ -117,13 +136,18 @@ router.get("/updateUser", async (req, res) => {
   }
 });
 
+//TODO
 //? Elimina cuenta
-router.get("/deleteUser", async (req, res) => {
+router.delete("/deleteUser", async (req, res) => {
   const { id } = req.cookies.decodedData;
+  await deleteParticipante(id);
+  res.redirect("/");
 });
 
+//? Vista ADMIN
 router.get("/admin", async (req, res) => {
-  res.render("admin");
+  const data = await getParticipantes();
+  res.render("admin", { participantes: data });
 });
 
 module.exports = router;

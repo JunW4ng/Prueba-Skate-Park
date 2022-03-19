@@ -60,9 +60,23 @@ const putParticipante = async (data) => {
   }
 };
 
+//? Elimina participante
+const deleteParticipante = async (id) => {
+  const sqlQuery = "DELETE FROM skaters WHERE id = $1 RETURNING*";
+  const value = [id];
+  try {
+    const result = consulta(sqlQuery, value);
+    return result.rowCount;
+  } catch (error) {
+    console.log(error.code);
+    return error;
+  }
+};
+
 module.exports = {
   getParticipantes,
   postParticipantes,
   findParticipante,
   putParticipante,
+  deleteParticipante,
 };

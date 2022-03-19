@@ -4,7 +4,7 @@
   <h2>Datos del perfil</h2>
   <hr class="w-50" />
 
-  <form action="/updateUser" method="get">
+  <form method="post">
     <div class="form-group row w-50 m-auto">
       <div class="form-group col-12 col-sm-6">
         <label>Email</label>
@@ -54,10 +54,34 @@
       </div>
     </div>
     <div class="mb-1">
-      <button class="btn btn-primary">Actualizar</button>
+      <button
+        class="btn btn-primary"
+        onclick="javascript: form.action='/updateUser'"
+      >Actualizar</button>
     </div>
     <div>
-      <button class="btn btn-danger">Eliminar cuenta</button>
+      <button
+        class="btn btn-danger"
+        onclick="javascript: form.action='/deleteUser'"
+      >Eliminar cuenta</button>
     </div>
   </form>
 </div>
+
+<script>
+  let url = 'http://localhost:3000';
+
+  async function getData(){
+    await axios.get(url + '/participantes').then((data)=>{
+      participantes = data.data;
+      console.log(participantes);
+    })
+  }
+
+  async function deleteUser(id){
+    axios.delete(url + '/deleteUser' + id).then(()=>{
+      alert('Participante eliminado');
+      getData();
+    })
+  }
+</script>
