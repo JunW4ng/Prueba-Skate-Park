@@ -59,29 +59,8 @@
         onclick="javascript: form.action='/updateUser'"
       >Actualizar</button>
     </div>
-    <div>
-      <button
-        class="btn btn-danger"
-        onclick="javascript: form.action='/deleteUser'"
-      >Eliminar cuenta</button>
-    </div>
   </form>
+  <div>
+    <a href="http://localhost:3000/deleteUser" class="btn btn-danger">Eliminar cuenta</a>
+  </div>
 </div>
-
-<script>
-  let url = 'http://localhost:3000';
-
-  async function getData(){
-    await axios.get(url + '/participantes').then((data)=>{
-      participantes = data.data;
-      console.log(participantes);
-    })
-  }
-
-  async function deleteUser(id){
-    axios.delete(url + '/deleteUser' + id).then(()=>{
-      alert('Participante eliminado');
-      getData();
-    })
-  }
-</script>

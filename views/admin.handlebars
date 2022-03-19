@@ -47,9 +47,18 @@
           <td>{{this.nombre}}</td>
           <td>{{this.anos_experiencia}}</td>
           <td>{{this.especialidad}}</td>
-          <td><input type="checkbox" /></td>
+          <td>
+            <input
+              type="checkbox"
+              onchange="cambioEstado({{this.id}},{{this.estado}})"
+            />
+          </td>
         </tr>
       {{/each}}
     </tbody>
   </table>
+  <script>
+    const cambioEstado = (id, estado) =>
+    fetch(`/estado/${id}/{${estado}`,{method: "put"})
+  </script>
 </div>

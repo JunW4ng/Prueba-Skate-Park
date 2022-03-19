@@ -1,8 +1,7 @@
 const { Pool } = require("pg");
 
 const pool = new Pool({
-  connectionString:
-    "postgresql://postgres:Junjie1995.@localhost:5432/skatepark",
+  connectionString: "postgresql://postgres:Junjie1995@localhost:5432/skatepark",
 });
 
 const consulta = (text, values) => ({ text, values });
@@ -65,7 +64,7 @@ const deleteParticipante = async (id) => {
   const sqlQuery = "DELETE FROM skaters WHERE id = $1 RETURNING*";
   const value = [id];
   try {
-    const result = consulta(sqlQuery, value);
+    const result = await pool.query(consulta(sqlQuery, value));
     return result.rowCount;
   } catch (error) {
     console.log(error.code);

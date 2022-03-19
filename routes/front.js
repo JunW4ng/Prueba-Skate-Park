@@ -87,6 +87,7 @@ router.post("/signIn", async (req, res) => {
           expiresIn: JWT_TTL,
         }
       );
+      res.cookie("id", id);
       res.cookie("token", token).redirect("/verified");
     }
   } catch (error) {
@@ -94,23 +95,43 @@ router.post("/signIn", async (req, res) => {
   }
 });
 
-//? Verifica
-router.use("/verified", (req, res, next) => {
+/*
+const verificar = (req, res, next) => {
   try {
     jwt.verify(req.cookies.token, JWT_SECRET, (err, data) => {
-      res.cookie("decodedData", data);
+      req.skater = data;
     });
     next();
   } catch (error) {
     console.log(error);
+    res.status(401).send("No esta permitido")
+  }
+}*/
+
+//? Verifica
+router.use("/verified", (req, res, next) => {
+  try {
+    jwt.verify(req.cookies.token, JWT_SECRET, (err, data) => {
+      req.skater = data;
+    });
+    next();
+  } catch (error) {
+    console.log(error);
+    res.status(401).send("No esta permitido");
   }
 });
 
+/*
+formulario -> server
+
+server (nombre,email,password,etc) + archivo
+*/
+
 //? Post verificado levanta pagina de datos
-router.get("/verified", (req, res) => {
+router.get("/verified", async (req, res) => {
   try {
     const { email, nombre, password, anos_experiencia, especialidad } =
-      req.cookies.decodedData;
+      req.skater;
     res.render("datos", {
       email: email,
       nombre: nombre,
@@ -127,7 +148,7 @@ router.get("/verified", (req, res) => {
 router.post("/updateUser", async (req, res) => {
   try {
     const { nombre, password, experiencia, especialidad } = req.body;
-    const { id } = req.cookies.decodedData;
+    const { id } = req.cookies;
     const data = { nombre, password, experiencia, especialidad, id };
     await putParticipante(Object.values(data));
     res.redirect("/");
@@ -136,10 +157,9 @@ router.post("/updateUser", async (req, res) => {
   }
 });
 
-//TODO
 //? Elimina cuenta
-router.delete("/deleteUser", async (req, res) => {
-  const { id } = req.cookies.decodedData;
+router.get("/deleteUser", async (req, res) => {
+  const { id } = req.cookies;
   await deleteParticipante(id);
   res.redirect("/");
 });
@@ -148,6 +168,13 @@ router.delete("/deleteUser", async (req, res) => {
 router.get("/admin", async (req, res) => {
   const data = await getParticipantes();
   res.render("admin", { participantes: data });
+});
+
+// TODO
+//? Cambio de estado
+router.get("/estado/:id/:estado", (req, res) => {
+  const { estado } = req.params;
+  console.log(estado);
 });
 
 module.exports = router;
