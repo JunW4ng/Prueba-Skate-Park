@@ -27,16 +27,15 @@ router.use(
   })
 );
 
-//! Hacer logica de estado (aprobado o en revision)
 //? Muestra participantes
-router.get("/", async (req, res) => {
+router.get("/", async (_, res) => {
   const data = await getParticipantes();
   res.render("index", { participantes: data });
 });
 
 //? Vistas
 router.get("/login", async (req, res) => res.render("login", req));
-router.get("/registro", async (req, res) => res.render("registro"));
+router.get("/registro", async (_, res) => res.render("registro"));
 
 //? Registro de participante
 router.post("/register", async (req, res) => {
@@ -167,16 +166,9 @@ router.get("/deleteUser", async (req, res) => {
 });
 
 //? Vista ADMIN
-router.get("/admin", async (req, res) => {
+router.get("/admin", async (_, res) => {
   const data = await getParticipantes();
   res.render("admin", { participantes: data });
-});
-
-// TODO
-//? Cambio de estado
-router.put("/estado/:id/:estado", (req, res) => {
-  const { estado } = req.params;
-  console.log(estado);
 });
 
 module.exports = router;
