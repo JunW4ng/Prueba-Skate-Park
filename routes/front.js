@@ -19,7 +19,13 @@ const router = Router();
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());
 router.use(cookieParser());
-router.use(fileUpload()); //! configurar mb max
+router.use(
+  fileUpload({
+    limits: { filesize: 5000000 },
+    abortOnLimit: true,
+    responseOnLimit: "La imagen sobrepasa los 5MB permitidos",
+  })
+);
 
 //! Hacer logica de estado (aprobado o en revision)
 //? Muestra participantes
@@ -35,9 +41,8 @@ router.get("/registro", async (req, res) => res.render("registro"));
 //? Registro de participante
 router.post("/register", async (req, res) => {
   try {
-    const { email, nombre, password, experiencia, especialidad, foto } =
-      req.body;
-    const estado = "FALSE"; //? Setea default de estado
+    const { email, nombre, password, experiencia, especialidad, foto } = req.body;
+    const estado = "FALSE"; // Setea default de estado
     const data = {
       email,
       nombre,
@@ -54,19 +59,16 @@ router.post("/register", async (req, res) => {
   }
 });
 
-//? Subida de foto
-/* router.post("register", (req, res) => {
-  let sampleFile;
-  let uploadPath;
+//? Sube foto
+/* router.post("/register", async (req, res) => {
+  const { foto } = req.files;
+  let fotoPath = `${__dirname}/public/images/${foto}.jpg`;
 
   if (!req.files || Object.keys(req.files).length === 0) {
     return res.status(400).send("No files were uploaded.");
   }
 
-  sampleFile = req.files.foto;
-  uploadPath = __dirname + "../public/images" + sampleFile.name;
-
-  sampleFile.mv(uploadPath, (err) => {
+  foto.mv(fotoPath, (err) => {
     if (err) res.status(500).send(err);
   });
 }); */
@@ -172,7 +174,7 @@ router.get("/admin", async (req, res) => {
 
 // TODO
 //? Cambio de estado
-router.get("/estado/:id/:estado", (req, res) => {
+router.put("/estado/:id/:estado", (req, res) => {
   const { estado } = req.params;
   console.log(estado);
 });
