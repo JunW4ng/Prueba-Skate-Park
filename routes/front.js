@@ -122,12 +122,6 @@ router.use("/verified", (req, res, next) => {
   }
 });
 
-/*
-formulario -> server
-
-server (nombre,email,password,etc) + archivo
-*/
-
 //? Post verificado levanta pagina de datos
 router.get("/verified", async (req, res) => {
   try {
