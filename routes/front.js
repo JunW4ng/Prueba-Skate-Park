@@ -2,7 +2,6 @@ require("dotenv").config();
 const { Router } = require("express");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
-const fileUpload = require("express-fileupload");
 const jwt = require("jsonwebtoken");
 const {
   getParticipantes,
@@ -19,18 +18,16 @@ const router = Router();
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());
 router.use(cookieParser());
-router.use(
-  fileUpload({
-    limits: { filesize: 5000000 },
-    abortOnLimit: true,
-    responseOnLimit: "La imagen sobrepasa los 5MB permitidos",
-  })
-);
 
 //? Muestra participantes
 router.get("/", async (_, res) => {
-  const data = await getParticipantes();
-  res.render("index", { participantes: data });
+  try {
+    const data = await getParticipantes();
+    res.render("index", { participantes: data });
+  } catch (error) {
+    console.log(error);
+    res.status(404).send("No Encontrado");
+  }
 });
 
 //? Vistas
@@ -40,7 +37,8 @@ router.get("/registro", async (_, res) => res.render("registro"));
 //? Registro de participante
 router.post("/register", async (req, res) => {
   try {
-    const { email, nombre, password, experiencia, especialidad, foto } = req.body;
+    const { email, nombre, password, experiencia, especialidad, foto } =
+      req.body;
     const estado = "FALSE"; // Setea default de estado
     const data = {
       email,
@@ -55,22 +53,9 @@ router.post("/register", async (req, res) => {
     res.redirect("/");
   } catch (error) {
     console.log(error);
+    res.status(404).send("No Encontrado");
   }
 });
-
-//? Sube foto
-/* router.post("/register", async (req, res) => {
-  const { foto } = req.files;
-  let fotoPath = `${__dirname}/public/images/${foto}.jpg`;
-
-  if (!req.files || Object.keys(req.files).length === 0) {
-    return res.status(400).send("No files were uploaded.");
-  }
-
-  foto.mv(fotoPath, (err) => {
-    if (err) res.status(500).send(err);
-  });
-}); */
 
 //? Login participante
 router.post("/signIn", async (req, res) => {
@@ -93,21 +78,9 @@ router.post("/signIn", async (req, res) => {
     }
   } catch (error) {
     console.log(error);
+    res.status(500).send("Error servidor");
   }
 });
-
-/*
-const verificar = (req, res, next) => {
-  try {
-    jwt.verify(req.cookies.token, JWT_SECRET, (err, data) => {
-      req.skater = data;
-    });
-    next();
-  } catch (error) {
-    console.log(error);
-    res.status(401).send("No esta permitido")
-  }
-}*/
 
 //? Verifica
 router.use("/verified", (req, res, next) => {
@@ -136,6 +109,7 @@ router.get("/verified", async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+    res.status(404).send("No Encontrado");
   }
 });
 
@@ -149,20 +123,31 @@ router.post("/updateUser", async (req, res) => {
     res.redirect("/");
   } catch (error) {
     console.log(error);
+    res.status(404).send("No Encontrado");
   }
 });
 
 //? Elimina cuenta
 router.get("/deleteUser", async (req, res) => {
-  const { id } = req.cookies;
-  await deleteParticipante(id);
-  res.redirect("/");
+  try {
+    const { id } = req.cookies;
+    await deleteParticipante(id);
+    res.redirect("/");
+  } catch (error) {
+    console.log(error);
+    res.status(404).send("No Encontrado");
+  }
 });
 
 //? Vista ADMIN
 router.get("/admin", async (_, res) => {
-  const data = await getParticipantes();
-  res.render("admin", { participantes: data });
+  try {
+    const data = await getParticipantes();
+    res.render("admin", { participantes: data });
+  } catch (error) {
+    console.log(error);
+    res.status(404).send("No Encontrado");
+  }
 });
 
 module.exports = router;
