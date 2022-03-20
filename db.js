@@ -1,7 +1,9 @@
 const { Pool } = require("pg");
 
+//"postgresql://postgres:Junjie1995@localhost:5432/skatepark"
 const pool = new Pool({
-  connectionString: "postgresql://postgres:Junjie1995@localhost:5432/skatepark",
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
 });
 
 const consulta = (text, values) => ({ text, values });
